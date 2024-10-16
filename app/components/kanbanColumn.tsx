@@ -1,67 +1,92 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import React, { useContext, useState } from 'react';
+import { Draggable } from 'react-beautiful-dnd';
 import { TaskContext } from '../context/taskContext';
 import { Task } from '../types/task';
 
 interface KanbanColumnProps {
   title: string;
+  status: 'todo' | 'in-progress' | 'done';
   tasks: Task[];
 }
 
-const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks }) => {
+const KanbanColumn: React.FC<KanbanColumnProps> = ({
+  title,
+  status,
+  tasks,
+}) => {
   const taskContext = useContext(TaskContext);
-  const [newTaskTitle, setNewTaskTitle] = useState('');
+
+  if (!taskContext) {
+    throw new Error('TaskContext must be used within a TaskProvider');
+  }
+
+  const { addTask, deleteTask } = taskContext;
+  const [taskTitle, setTaskTitle] = useState('');
 
   const handleAddTask = () => {
-    if (taskContext && newTaskTitle.trim()) {
-      taskContext.addTask({
-        title: newTaskTitle,
-        comments: 0,
-        files: 0,
-        status: title.toLowerCase() as 'todo' | 'in-progress' | 'done',
-      });
-      setNewTaskTitle(''); // Clear input
-    }
+    if (taskTitle.trim() === '') return alert('Task title is required');
+
+    addTask({
+      title: taskTitle,
+      comments: 0,
+      files: 0,
+      status,
+    });
+
+    setTaskTitle('');
   };
 
   return (
-    <div className='bg-gray-100 p-4 rounded-lg shadow-md m-2'>
-      <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-lg font-bold'>{title}</h2>
-        <Button onClick={handleAddTask}>Add</Button>
-      </div>
-      <Input
-        placeholder='New Task'
-        value={newTaskTitle}
-        onChange={(e) => setNewTaskTitle(e.target.value)}
-        onKeyPress={(e) => {
-          if (e.key === 'Enter') {
-            handleAddTask();
-          }
-        }}
-        className='border border-gray-300 rounded p-2 mb-4 w-full'
-      />
-      {tasks.map((task) => (
-        <div
-          key={task.id}
-          className='bg-white border border-gray-300 rounded p-4 mb-2 shadow'
+    <div className=' p-4   m-2 w-80'>
+      <h2 className='text-lg font-bold mb-4'>{title}</h2>
+
+      {/* Add Task Field */}
+      <div className='mb-4'>
+        <input
+          type='text'
+          value={taskTitle}
+          onChange={(e) => setTaskTitle(e.target.value)}
+          placeholder='Enter task title'
+          className='border rounded-lg p-2 w-full'
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              handleAddTask();
+            }
+          }}
+        />
+        <button
+          onClick={handleAddTask}
+          className='mt-2 bg-blue-500 text-white py-1 px-4 rounded-lg hover:bg-blue-600'
         >
-          <h3 className='font-medium'>{task.title}</h3>
-          <div className='flex justify-between items-center mt-2'>
-            <span className='text-sm'>
-              {task.comments} comments | {task.files} files
-            </span>
-            <Button
-              variant='destructive'
-              onClick={() => taskContext?.deleteTask(task.id)}
+          Add Task
+        </button>
+      </div>
+
+      {/* Render tasks */}
+      {tasks.map((task, index) => (
+        <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+          {(provided) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+              className='bg-white p-4 rounded-lg shadow-lg mb-2'
             >
-              Delete
-            </Button>
-          </div>
-        </div>
+              <h3>{task.title}</h3>
+              <p>
+                {task.comments} comments | {task.files} files
+              </p>
+              <button
+                onClick={() => deleteTask(task.id)}
+                className='text-red-500'
+              >
+                Delete
+              </button>
+            </div>
+          )}
+        </Draggable>
       ))}
     </div>
   );

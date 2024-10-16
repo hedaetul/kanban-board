@@ -1,15 +1,37 @@
 'use client';
 
 import React, { useContext } from 'react';
+import { Droppable } from 'react-beautiful-dnd';
 import { TaskContext } from '../context/taskContext';
 import KanbanColumn from './kanbanColumn';
 
 const InProgressColumn: React.FC = () => {
   const taskContext = useContext(TaskContext);
-  const inProgressTasks =
-    taskContext?.tasks.filter((task) => task.status === 'in-progress') || [];
 
-  return <KanbanColumn title='In-progress' tasks={inProgressTasks} />;
+  if (!taskContext) {
+    throw new Error('TaskContext must be used within a TaskProvider');
+  }
+
+  const { tasks } = taskContext;
+
+  return (
+    <Droppable droppableId='in-progress'>
+      {(provided) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className='bg-slate-100 p-4 rounded-lg shadow-lg m-2'
+        >
+          <KanbanColumn
+            title='In Progress'
+            status='in-progress'
+            tasks={tasks.filter((task) => task.status === 'in-progress')}
+          />
+          {provided.placeholder}
+        </div>
+      )}
+    </Droppable>
+  );
 };
 
 export default InProgressColumn;
