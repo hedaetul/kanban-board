@@ -7,31 +7,26 @@ interface TaskContextProps {
   tasks: Task[];
   addTask: (task: Omit<Task, 'id'>) => void;
   deleteTask: (id: number) => void;
+  updateTaskStatus: (id: number, status: 'todo' | 'in-progress' | 'done') => void;
+  updateTaskPosition: (sourceIndex: number, destinationIndex: number) => void; 
 }
 
 export const TaskContext = createContext<TaskContextProps | undefined>(undefined);
 
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-
-  // Load tasks from localStorage on initial load
-  useEffect(() => {
+  const [tasks, setTasks] = useState<Task[]>(() => {
     const storedTasks = localStorage.getItem('tasks');
-    if (storedTasks) {
-      setTasks(JSON.parse(storedTasks));
-    }
-  }, []);
+    return storedTasks ? JSON.parse(storedTasks) : [];
+  });
 
-  // Save tasks to localStorage whenever the tasks state changes
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  // Add task with a unique ID
   const addTask = (newTask: Omit<Task, 'id'>) => {
     const taskWithId: Task = {
       ...newTask,
-      id: tasks.length ? tasks[tasks.length - 1].id + 1 : 1, 
+      id: tasks.length ? tasks[tasks.length - 1].id + 1 : 1,
     };
     setTasks((prevTasks) => [...prevTasks, taskWithId]);
   };
@@ -40,8 +35,21 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
   };
 
+  const updateTaskStatus = (id: number, status: 'todo' | 'in-progress' | 'done') => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => (task.id === id ? { ...task, status } : task))
+    );
+  };
+
+  const updateTaskPosition = (sourceIndex: number, destinationIndex: number) => {
+    const newTasks = Array.from(tasks);
+    const [movedTask] = newTasks.splice(sourceIndex, 1);
+    newTasks.splice(destinationIndex, 0, movedTask);
+    setTasks(newTasks);
+  };
+
   return (
-    <TaskContext.Provider value={{ tasks, addTask, deleteTask }}>
+    <TaskContext.Provider value={{ tasks, addTask, deleteTask, updateTaskStatus, updateTaskPosition }}>
       {children}
     </TaskContext.Provider>
   );
