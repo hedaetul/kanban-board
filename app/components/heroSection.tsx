@@ -3,9 +3,9 @@
 import React, { useContext } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { TaskContext } from '../context/taskContext';
-import TodoColumn from './todoColumn';
-import InProgressColumn from './inProgressColumn';
 import DoneColumn from './doneColumn';
+import InProgressColumn from './inProgressColumn';
+import TodoColumn from './todoColumn';
 
 const HeroSection: React.FC = () => {
   const taskContext = useContext(TaskContext);
@@ -19,17 +19,24 @@ const HeroSection: React.FC = () => {
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
-    if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
+    if (
+      !destination ||
+      (destination.droppableId === source.droppableId &&
+        destination.index === source.index)
+    ) {
       return;
     }
 
-    const newStatus = destination.droppableId as 'todo' | 'in-progress' | 'done';
+    const newStatus = destination.droppableId as
+      | 'todo'
+      | 'in-progress'
+      | 'done';
     updateTaskStatus(Number(draggableId), newStatus);
   };
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex space-x-4">
+      <div className='flex space-x-4'>
         <TodoColumn />
         <InProgressColumn />
         <DoneColumn />
