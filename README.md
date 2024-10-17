@@ -1,6 +1,6 @@
 # Kanban Board
 
-[![Watch the video](https://imgur.com/a/KgPomdq)
+[![Watch the video](https://youtu.be/RqPs2jsycYc)
 
 
 This is a fully functional Kanban board application built with **React**, **TypeScript**, **react-beautiful-dnd**, and **Context API**. The app allows users to add tasks, move them between columns (To-Do, In-Progress, Done), and persist the tasks across page reloads using `localStorage`.
