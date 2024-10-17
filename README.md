@@ -44,5 +44,5 @@ To run this project locally, you’ll need:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/hedaetul/kanban-todo.git
-   cd kanban-todo
+   git clone https://github.com/hedaetul/kanban-board.git
+   cd kanban-board
