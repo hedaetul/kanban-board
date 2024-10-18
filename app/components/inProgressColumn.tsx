@@ -20,7 +20,7 @@ const InProgressColumn: React.FC = () => {
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className='bg-slate-100 p-4 rounded-lg shadow-lg m-2'
+          className='column-card '
         >
           <KanbanColumn
             title='In Progress'

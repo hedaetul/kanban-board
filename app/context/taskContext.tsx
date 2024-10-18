@@ -1,22 +1,30 @@
 'use client';
 
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { Task } from '../types/task';
 
 interface TaskContextProps {
   tasks: Task[];
+  isLoading: boolean;
   addTask: (task: Omit<Task, 'id'>) => void;
   deleteTask: (id: number) => void;
-  updateTaskStatus: (id: number, status: 'todo' | 'in-progress' | 'done') => void;
+  updateTaskStatus: (
+    id: number,
+    status: 'todo' | 'in-progress' | 'done'
+  ) => void;
   updateTaskPosition: (sourceIndex: number, destinationIndex: number) => void;
 }
 
-export const TaskContext = createContext<TaskContextProps | undefined>(undefined);
+export const TaskContext = createContext<TaskContextProps | undefined>(
+  undefined
+);
 
-export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tasks, setTasks] = useState<Task[]>([]); 
+export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedTasks = localStorage.getItem('tasks');
@@ -24,12 +32,14 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setTasks(JSON.parse(storedTasks));
       }
     }
-  }, []); 
+    setIsLoading(false);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('tasks', JSON.stringify(tasks));
     }
+    setIsLoading(false);
   }, [tasks]);
 
   const addTask = (newTask: Omit<Task, 'id'>) => {
@@ -44,13 +54,19 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
   };
 
-  const updateTaskStatus = (id: number, status: 'todo' | 'in-progress' | 'done') => {
+  const updateTaskStatus = (
+    id: number,
+    status: 'todo' | 'in-progress' | 'done'
+  ) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) => (task.id === id ? { ...task, status } : task))
     );
   };
 
-  const updateTaskPosition = (sourceIndex: number, destinationIndex: number) => {
+  const updateTaskPosition = (
+    sourceIndex: number,
+    destinationIndex: number
+  ) => {
     const newTasks = Array.from(tasks);
     const [movedTask] = newTasks.splice(sourceIndex, 1);
     newTasks.splice(destinationIndex, 0, movedTask);
@@ -58,7 +74,16 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <TaskContext.Provider value={{ tasks, addTask, deleteTask, updateTaskStatus, updateTaskPosition }}>
+    <TaskContext.Provider
+      value={{
+        tasks,
+        isLoading,
+        addTask,
+        deleteTask,
+        updateTaskStatus,
+        updateTaskPosition,
+      }}
+    >
       {children}
     </TaskContext.Provider>
   );

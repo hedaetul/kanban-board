@@ -12,7 +12,6 @@ body {
   }
 }
 
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -78,3 +77,14 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.column-card {
+  @apply bg-[#F4F6F8] h-[85vh] overflow-y-scroll rounded-lg shadow-lg my-4 ;
+
+}
+
+.column-card::-webkit-scrollbar {
+  display: none;
+}
+
+
