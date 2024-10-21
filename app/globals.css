@@ -87,4 +87,10 @@ body {
   display: none;
 }
 
+.dropdown-item {
+  @apply cursor-pointer hover:bg-slate-200 border-none  rounded-md p-1
+}
+
+
+
 
