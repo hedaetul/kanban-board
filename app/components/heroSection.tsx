@@ -3,7 +3,7 @@
 import React, { useContext, useState } from 'react';
 import { TaskContext } from '../context/taskContext';
 import KanbanColumn from './kanbanColumn';
-import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 const HeroSection: React.FC = () => {
   const taskContext = useContext(TaskContext);
