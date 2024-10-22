@@ -121,7 +121,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
-  // Function to delete a column
   const deleteColumn = (columnId: number) => {
     setColumns((prevColumns) =>
       prevColumns.filter((col) => col.id !== columnId)
@@ -130,36 +129,52 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
-
+  
     // If no destination, return
     if (!destination) return;
-
+  
     // If dropped in the same column at the same position, return
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
+    if (source.droppableId === destination.droppableId && source.index === destination.index) {
       return;
     }
-
-    // Get the source and destination columns
-    const sourceColumn = columns.find((col) => col.id === parseInt(source.droppableId));
-    const destColumn = columns.find((col) => col.id === parseInt(destination.droppableId));
-
-    if (!sourceColumn || !destColumn) return;
-
-    // Get the task being dragged
-    const draggedTask = sourceColumn.tasks[source.index];
-
+  
+    // Clone the columns to avoid mutating the state directly
+    const updatedColumns = [...columns];
+  
+    // Find the source and destination columns
+    const sourceColumnIndex = updatedColumns.findIndex(col => col.id === parseInt(source.droppableId));
+    const destColumnIndex = updatedColumns.findIndex(col => col.id === parseInt(destination.droppableId));
+  
+    if (sourceColumnIndex < 0 || destColumnIndex < 0) return;
+  
+    const sourceColumn = updatedColumns[sourceColumnIndex];
+    const destColumn = updatedColumns[destColumnIndex];
+  
+    // Clone the tasks to avoid direct mutation
+    const sourceTasks = [...sourceColumn.tasks];
+    const destTasks = [...destColumn.tasks];
+  
     // Remove task from the source column
-    sourceColumn.tasks.splice(source.index, 1);
-
-    // Add the task to the destination column at the new index
-    destColumn.tasks.splice(destination.index, 0, draggedTask);
-
-    // Update columns in state
-    setColumns([...columns]);
+    const [movedTask] = sourceTasks.splice(source.index, 1);
+  
+    // Add task to the destination column at the new index
+    destTasks.splice(destination.index, 0, movedTask);
+  
+    // Update the columns with the new task lists
+    updatedColumns[sourceColumnIndex] = {
+      ...sourceColumn,
+      tasks: sourceTasks,
+    };
+  
+    updatedColumns[destColumnIndex] = {
+      ...destColumn,
+      tasks: destTasks,
+    };
+  
+    // Set the updated columns state
+    setColumns(updatedColumns);
   };
+  
 
   return (
     <TaskContext.Provider
@@ -171,7 +186,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         updateTaskStatus,
         addColumn,
         editColumnTitle,
-        deleteColumn, // Pass deleteColumn to the context
+        deleteColumn, 
         onDragEnd,
       }}
     >

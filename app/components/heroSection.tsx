@@ -17,9 +17,10 @@ const HeroSection: React.FC = () => {
 
   const handleAddColumn = () => {
     if (newColumnTitle.trim() === '') return;
-    addColumn(newColumnTitle); // Add the new column
-    setNewColumnTitle(''); // Clear the input field after adding
+    addColumn(newColumnTitle); 
+    setNewColumnTitle('');
   };
+  
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
